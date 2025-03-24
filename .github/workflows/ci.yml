@@ -9,7 +9,10 @@ on:
 
 jobs:
   build-test:
-    runs-on: self-ubuntu-24.04
+    strategy:
+      matrix:
+        systems: [ self-ubuntu-24.04 , karolina ]
+    runs-on: ${{ matrix.systems }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

@@ -1,4 +1,4 @@
-name: CI - Configure, Build, Test
+name: CI - Configure, Build, Test, and Package
 
 on:
   push:
@@ -8,23 +8,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-test:
+  build:
     strategy:
       matrix:
-        systems: [ self-ubuntu-24.04 , karolina ]
-    runs-on: ${{ matrix.systems }}
+        runs-on: [self-ubuntu-24.04, karolina]
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Configure the Build System
+      - name: Build
         run: |
+          if [ "${{ matrix.runs-on }}" == "karolina" ]; then
+            module load Boost/1.83.0-GCC-13.2.0 Ninja/1.12.1-GCCcore-13.3.0 OpenMPI/4.1.6-GCC-13.2.0
+          fi
           cmake --preset default
-
-      - name: Build the Project
-        run: |
           cmake --build --preset default
 
-      - name: Run Tests
+      - name: Test
         run: |
+          if [ "${{ matrix.runs-on }}" == "karolina" ]; then
+            module load Boost/1.83.0-GCC-13.2.0 Ninja/1.12.1-GCCcore-13.3.0 OpenMPI/4.1.6-GCC-13.2.0
+          fi
           ctest --preset default
+
+      - name: Package
+        run: |
+          if [ "${{ matrix.runs-on }}" == "karolina" ]; then
+            module load Boost/1.83.0-GCC-13.2.0 Ninja/1.12.1-GCCcore-13.3.0 OpenMPI/4.1.6-GCC-13.2.0
+          fi
+          cmake --build --preset default -t package
